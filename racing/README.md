@@ -42,11 +42,11 @@ brew install grpcurl
 By meeting ids:
 
 ```bash
-$ grpcurl -plaintext -proto racing/proto/racing/racing.proto -d '{"filter": {"meeting_ids": [1, 2, 3]}}' localhost:9000 racing.Racing/ListRaces
+$ grpcurl -plaintext -proto proto/racing/racing.proto -d '{"filter": {"meeting_ids": [1, 2, 3]}}' localhost:9000 racing.Racing/ListRaces
 ```
 
 By meeting ids, visible only:
 
 ```bash
-$ grpcurl -plaintext -proto racing/proto/racing/racing.proto -d '{"filter": {"meeting_ids": [1, 2, 3], "visible_only": true}}' localhost:9000 racing.Racing/ListRaces
+$ grpcurl -plaintext -proto proto/racing/racing.proto -d '{"filter": {"meeting_ids": [1, 2, 3], "visible_only": true}}' localhost:9000 racing.Racing/ListRaces
 ```
