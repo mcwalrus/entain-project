@@ -50,3 +50,12 @@ By meeting ids, visible only:
 ```bash
 $ grpcurl -plaintext -proto proto/racing/racing.proto -d '{"filter": {"meeting_ids": [1, 2, 3], "visible_only": true}}' localhost:9000 racing.Racing/ListRaces
 ```
+
+**Manual validation**
+
+Verify different sets of results with counting returned entries from races list:
+
+```
+ $ grpcurl ... | jq '.races | length'
+```
+
