@@ -18,6 +18,16 @@ Server runs on `localhost:9000` by default.
 - `db/`: Database repository layer with SQLite
 - `proto/`: Protocol buffer definitions and generated code
 
+## Protobuf
+
+On updating `racing.proto`, you will need to regenerate the bindings:
+
+```bash
+$ go mod tidy
+$ go generate ./...
+```
+
+
 ## Testing
 
 Using `grpcurl` to test the endpoints manually. To install:
