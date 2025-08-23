@@ -51,6 +51,18 @@ By meeting ids, visible only:
 $ grpcurl -plaintext -proto proto/racing/racing.proto -d '{"filter": {"meeting_ids": [1, 2, 3], "visible_only": true}}' localhost:9000 racing.Racing/ListRaces
 ```
 
+With sorting by advertised start time descending:
+
+```bash
+$ grpcurl -plaintext -proto proto/racing/racing.proto -d '{"filter": {"sort_by": "ADVERTISED_START_TIME_DESC"}}' localhost:9000 racing.Racing/ListRaces
+```
+
+With sorting by name ascending:
+
+```bash
+$ grpcurl -plaintext -proto proto/racing/racing.proto -d '{"filter": {"sort_by": "NAME_ASC"}}' localhost:9000 racing.Racing/ListRaces
+```
+
 **Manual validation**
 
 Verify different sets of results with counting returned entries from races list:

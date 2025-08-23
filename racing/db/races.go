@@ -69,6 +69,8 @@ func (r *racesRepo) applyFilter(query string, filter *racing.ListRacesRequestFil
 	)
 
 	if filter == nil {
+		// Apply default sorting even when no filter is provided
+		query += " " + getSortClause(0) // Default to ADVERTISED_START_TIME_ASC
 		return query, args
 	}
 
@@ -88,6 +90,8 @@ func (r *racesRepo) applyFilter(query string, filter *racing.ListRacesRequestFil
 	if len(clauses) != 0 {
 		query += " WHERE " + strings.Join(clauses, " AND ")
 	}
+
+	query += " " + getSortClause(int32(filter.SortBy))
 
 	return query, args
 }
