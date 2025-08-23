@@ -69,8 +69,7 @@ func (r *racesRepo) applyFilter(query string, filter *racing.ListRacesRequestFil
 	)
 
 	if filter == nil {
-		// Apply default sorting even when no filter is provided
-		query += " " + getSortClause(0) // Default to ADVERTISED_START_TIME_ASC
+		query += " " + getSortClause(0)
 		return query, args
 	}
 
