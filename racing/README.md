@@ -48,31 +48,31 @@ go test -run . git.neds.sh/matty/entain/racing/db
 By meeting ids:
 
 ```bash
-$ grpcurl -plaintext -proto proto/racing/racing.proto -d '{"filter": {"meeting_ids": [1, 2, 3]}}' localhost:9000 racing.Racing/ListRaces
+$ grpcurl -plaintext -emit-defaults -proto proto/racing/racing.proto -d '{"filter": {"meeting_ids": [1, 2, 3]}}' localhost:9000 racing.Racing/ListRaces
 ```
 
 By meeting ids, visible only:
 
 ```bash
-$ grpcurl -plaintext -proto proto/racing/racing.proto -d '{"filter": {"meeting_ids": [1, 2, 3], "visible_only": true}}' localhost:9000 racing.Racing/ListRaces
+$ grpcurl -plaintext -emit-defaults -proto proto/racing/racing.proto -d '{"filter": {"meeting_ids": [1, 2, 3], "visible_only": true}}' localhost:9000 racing.Racing/ListRaces
 ```
 
 Default sorted order should be by ascending `advertised_start_time`:
 
 ```bash
-$ grpcurl -plaintext -proto proto/racing/racing.proto -d '{}' localhost:9000 racing.Racing/ListRaces
+$ grpcurl -plaintext -emit-defaults -proto proto/racing/racing.proto -d '{}' localhost:9000 racing.Racing/ListRaces
 ```
 
 With sorting by advertised start time descending:
 
 ```bash
-$ grpcurl -plaintext -proto proto/racing/racing.proto -d '{"filter": {"sort_by": "ADVERTISED_START_TIME_DESC"}}' localhost:9000 racing.Racing/ListRaces
+$ grpcurl -plaintext -emit-defaults -proto proto/racing/racing.proto -d '{"filter": {"sort_by": "ADVERTISED_START_TIME_DESC"}}' localhost:9000 racing.Racing/ListRaces
 ```
 
 With sorting by name ascending:
 
 ```bash
-$ grpcurl -plaintext -proto proto/racing/racing.proto -d '{"filter": {"sort_by": "NAME_ASC"}}' localhost:9000 racing.Racing/ListRaces
+$ grpcurl -plaintext -emit-defaults -proto proto/racing/racing.proto -d '{"filter": {"sort_by": "NAME_ASC"}}' localhost:9000 racing.Racing/ListRaces
 ```
 
 **Manual validation**
