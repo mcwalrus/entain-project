@@ -4,10 +4,12 @@ import (
 	"database/sql"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/golang/protobuf/ptypes"
 	_ "github.com/mattn/go-sqlite3"
 
+	"git.neds.sh/matty/entain/racing/pkg/clock"
 	"git.neds.sh/matty/entain/racing/proto/racing"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -188,4 +190,50 @@ func TestRacesRepo_List_SortOptions(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestScanRaces_RaceStatus(t *testing.T) {
+	t.Cleanup(func() {
+		clock.ResetClockImplementation()
+	})
+
+	filter := &racing.ListRacesRequestFilter{
+		SortBy: racing.ListRacesSortBy_ADVERTISED_START_TIME_ASC,
+	}
+
+	races, err := testRepo.List(filter)
+	require.NoError(t, err)
+	require.NotEmpty(t, races)
+
+	testTime := races[0].AdvertisedStartTime.AsTime()
+
+	t.Run("races before test time should be OPEN", func(t *testing.T) {
+		clock.NowFunc(func() time.Time { return testTime.Add(+1 * time.Second) })
+
+		races, err := testRepo.List(filter)
+		require.NoError(t, err)
+
+		require.Less(t, races[0].AdvertisedStartTime.AsTime(), clock.Now())
+		require.Equal(t, racing.RaceStatus_OPEN, races[0].Status)
+	})
+
+	t.Run("races at test time should be CLOSED", func(t *testing.T) {
+		clock.NowFunc(func() time.Time { return testTime })
+
+		races, err := testRepo.List(filter)
+		require.NoError(t, err)
+
+		require.Equal(t, races[0].AdvertisedStartTime.AsTime(), clock.Now())
+		require.Equal(t, racing.RaceStatus_CLOSED, races[0].Status)
+	})
+
+	t.Run("races after test time should be CLOSED", func(t *testing.T) {
+		clock.NowFunc(func() time.Time { return testTime.Add(-1 * time.Second) })
+
+		races, err := testRepo.List(filter)
+		require.NoError(t, err)
+
+		require.Greater(t, races[0].AdvertisedStartTime.AsTime(), clock.Now())
+		require.Equal(t, racing.RaceStatus_CLOSED, races[0].Status)
+	})
 }

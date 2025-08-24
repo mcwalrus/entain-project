@@ -121,7 +121,7 @@ func (m *racesRepo) scanRaces(
 		}
 
 		race.AdvertisedStartTime = ts
-		if now.Before(advertisedStart) {
+		if advertisedStart.Before(now) {
 			race.Status = racing.RaceStatus_OPEN
 		} else {
 			race.Status = racing.RaceStatus_CLOSED
