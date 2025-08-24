@@ -60,6 +60,6 @@ message Race {
 
 // Enum for race status.
 enum RaceStatus {
-  RACE_STATUS_OPEN = 0;
-  RACE_STATUS_CLOSED = 1;
+  OPEN = 0;
+  CLOSED = 1;
 }
