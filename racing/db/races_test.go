@@ -253,7 +253,7 @@ func TestRacesRepo_Get(t *testing.T) {
 	t.Run("get non-existent race by ID", func(t *testing.T) {
 		nonExistentID := int64(99999)
 		race, err := testRepo.Get(nonExistentID)
-		require.NoError(t, err)
-		assert.Nil(t, race)
+		require.ErrorIs(t, err, ErrRaceNotFound)
+		require.Nil(t, race)
 	})
 }

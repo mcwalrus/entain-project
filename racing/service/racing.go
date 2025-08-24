@@ -4,6 +4,8 @@ import (
 	"git.neds.sh/matty/entain/racing/db"
 	"git.neds.sh/matty/entain/racing/proto/racing"
 	"golang.org/x/net/context"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type Racing interface {
@@ -35,6 +37,9 @@ func (s *racingService) ListRaces(ctx context.Context, in *racing.ListRacesReque
 func (s *racingService) GetRace(ctx context.Context, in *racing.GetRaceRequest) (*racing.Race, error) {
 	race, err := s.racesRepo.Get(in.Id)
 	if err != nil {
+		if err == db.ErrRaceNotFound {
+			return nil, status.Errorf(codes.NotFound, "race not found")
+		}
 		return nil, err
 	}
 

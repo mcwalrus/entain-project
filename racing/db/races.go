@@ -67,8 +67,8 @@ func (r *racesRepo) List(filter *racing.ListRacesRequestFilter) ([]*racing.Race,
 }
 
 // Get retrieves a single race by its ID from the database.
-// It returns the race if found, or nil if no race exists with the given ID.
-// Returns an error if there is a problem querying the database or converting the timestamp.
+// If the race is found, it returns the race, otherwise an error ErrRaceNotFound is returned.
+// Other errors are returned if there is a problem querying the database or converting the timestamp.
 func (r *racesRepo) Get(id int64) (*racing.Race, error) {
 	query := getRaceQueries()[racesGet]
 
@@ -79,7 +79,7 @@ func (r *racesRepo) Get(id int64) (*racing.Race, error) {
 
 	if err := row.Scan(&race.Id, &race.MeetingId, &race.Name, &race.Number, &race.Visible, &advertisedStart); err != nil {
 		if err == sql.ErrNoRows {
-			return nil, nil
+			return nil, ErrRaceNotFound
 		}
 		return nil, err
 	}
