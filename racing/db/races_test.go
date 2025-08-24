@@ -126,12 +126,16 @@ func verifySort(t *testing.T, race1, race2 *racing.Race, sortBy racing.ListRaces
 		require.NoError(t, err)
 		time2, err := ptypes.Timestamp(race2.AdvertisedStartTime)
 		require.NoError(t, err)
+
+		// Fails if time1 is after time2
 		assert.False(t, time1.After(time2))
 	case racing.ListRacesSortBy_ADVERTISED_START_TIME_DESC:
 		time1, err := ptypes.Timestamp(race1.AdvertisedStartTime)
 		require.NoError(t, err)
 		time2, err := ptypes.Timestamp(race2.AdvertisedStartTime)
 		require.NoError(t, err)
+
+		// Fails if time1 is before time2
 		assert.False(t, time1.Before(time2))
 	case racing.ListRacesSortBy_NAME_ASC:
 		assert.LessOrEqual(t, race1.Name, race2.Name)
