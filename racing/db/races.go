@@ -9,6 +9,7 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	_ "github.com/mattn/go-sqlite3"
 
+	"git.neds.sh/matty/entain/racing/pkg/clock"
 	"git.neds.sh/matty/entain/racing/proto/racing"
 )
 
@@ -100,6 +101,8 @@ func (m *racesRepo) scanRaces(
 ) ([]*racing.Race, error) {
 	var races []*racing.Race
 
+	now := clock.Now()
+
 	for rows.Next() {
 		var race racing.Race
 		var advertisedStart time.Time
@@ -118,6 +121,11 @@ func (m *racesRepo) scanRaces(
 		}
 
 		race.AdvertisedStartTime = ts
+		if now.Before(advertisedStart) {
+			race.Status = racing.RaceStatus_OPEN
+		} else {
+			race.Status = racing.RaceStatus_CLOSED
+		}
 
 		races = append(races, &race)
 	}
