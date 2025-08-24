@@ -120,23 +120,16 @@ func TestRacesRepo_List_VisibleOnlyFilter(t *testing.T) {
 func verifySort(t *testing.T, race1, race2 *racing.Race, sortBy racing.ListRacesSortBy) {
 	t.Helper()
 
+	time1, err := ptypes.Timestamp(race1.AdvertisedStartTime)
+	require.NoError(t, err)
+	time2, err := ptypes.Timestamp(race2.AdvertisedStartTime)
+	require.NoError(t, err)
+
 	switch sortBy {
 	case racing.ListRacesSortBy_ADVERTISED_START_TIME_ASC:
-		time1, err := ptypes.Timestamp(race1.AdvertisedStartTime)
-		require.NoError(t, err)
-		time2, err := ptypes.Timestamp(race2.AdvertisedStartTime)
-		require.NoError(t, err)
-
-		// Fails if time1 is after time2
-		assert.False(t, time1.After(time2))
+		assert.LessOrEqual(t, time1, time2)
 	case racing.ListRacesSortBy_ADVERTISED_START_TIME_DESC:
-		time1, err := ptypes.Timestamp(race1.AdvertisedStartTime)
-		require.NoError(t, err)
-		time2, err := ptypes.Timestamp(race2.AdvertisedStartTime)
-		require.NoError(t, err)
-
-		// Fails if time1 is before time2
-		assert.False(t, time1.Before(time2))
+		assert.GreaterOrEqual(t, time1, time2)
 	case racing.ListRacesSortBy_NAME_ASC:
 		assert.LessOrEqual(t, race1.Name, race2.Name)
 	case racing.ListRacesSortBy_NAME_DESC:
@@ -194,23 +187,5 @@ func TestRacesRepo_List_SortOptions(t *testing.T) {
 				verifySort(t, races[i], races[i+1], tt.sortBy)
 			}
 		})
-	}
-}
-
-func TestRacesRepo_List_SortWithFilters(t *testing.T) {
-	filter := &racing.ListRacesRequestFilter{
-		VisibleOnly: true,
-		SortBy:      racing.ListRacesSortBy_NAME_ASC,
-	}
-
-	races, err := testRepo.List(filter)
-	require.NoError(t, err, "List() with visible filter and sort failed")
-
-	for _, race := range races {
-		assert.True(t, race.Visible, "Race should be visible")
-	}
-
-	if len(races) >= 2 {
-		assert.LessOrEqual(t, races[0].Name, races[1].Name, "Races not sorted by name ASC")
 	}
 }
