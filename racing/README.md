@@ -50,6 +50,12 @@ By race id:
 $ grpcurl -plaintext -emit-defaults -proto proto/racing/racing.proto -d '{"id": 1}' localhost:9000 racing.Racing/GetRace
 ```
 
+Non-existent race:
+
+```bash
+$ grpcurl -plaintext -emit-defaults -proto proto/racing/racing.proto -d '{"id": -99999}' localhost:9000 racing.Racing/GetRace
+```
+
 ### ListRaces
 
 By meeting ids:
