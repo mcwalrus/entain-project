@@ -9,6 +9,8 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 
 	"git.neds.sh/matty/entain/racing/proto/racing"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 var (
@@ -56,13 +58,8 @@ func TestRacesRepo_List_MeetingIds(t *testing.T) {
 		}
 
 		races, err := testRepo.List(filter)
-		if err != nil {
-			t.Fatalf("List() with empty meeting_ids filter failed: %v", err)
-		}
-
-		if len(races) == 0 {
-			t.Fatal("Expected some races, got none")
-		}
+		require.NoError(t, err, "List() with empty meeting_ids filter failed")
+		assert.NotEmpty(t, races, "Expected some races, got none")
 	})
 
 	t.Run("with meeting_ids filter", func(t *testing.T) {
@@ -72,18 +69,11 @@ func TestRacesRepo_List_MeetingIds(t *testing.T) {
 		}
 
 		races, err := testRepo.List(filter)
-		if err != nil {
-			t.Fatalf("List() with meeting_ids filter failed: %v", err)
-		}
-
-		if len(races) == 0 {
-			t.Fatal("Expected some races, got none")
-		}
+		require.NoError(t, err, "List() with meeting_ids filter failed")
+		assert.NotEmpty(t, races, "Expected some races, got none")
 
 		for _, race := range races {
-			if !contains(testMeetingIDs, race.MeetingId) {
-				t.Errorf("Expected race with meeting ID %d, got %d", testMeetingIDs, race.MeetingId)
-			}
+			assert.True(t, contains(testMeetingIDs, race.MeetingId), "Expected race with meeting ID in %v, got %d", testMeetingIDs, race.MeetingId)
 		}
 	})
 }
@@ -96,9 +86,7 @@ func TestRacesRepo_List_VisibleOnlyFilter(t *testing.T) {
 		}
 
 		races, err := testRepo.List(filter)
-		if err != nil {
-			t.Fatalf("List() with visible_only filter failed: %v", err)
-		}
+		require.NoError(t, err, "List() with visible_only filter failed")
 
 		visibleCount := 0
 		invisibleCount := 0
@@ -110,9 +98,8 @@ func TestRacesRepo_List_VisibleOnlyFilter(t *testing.T) {
 			}
 		}
 
-		if visibleCount == 0 || invisibleCount == 0 {
-			t.Fatalf("Expected some visible and invisible races, got %d visible and %d invisible", visibleCount, invisibleCount)
-		}
+		assert.Greater(t, visibleCount, 0, "Expected some visible races")
+		assert.Greater(t, invisibleCount, 0, "Expected some invisible races")
 
 	})
 
@@ -122,14 +109,10 @@ func TestRacesRepo_List_VisibleOnlyFilter(t *testing.T) {
 		}
 
 		races, err := testRepo.List(filter)
-		if err != nil {
-			t.Fatalf("List() with visible_only filter failed: %v", err)
-		}
+		require.NoError(t, err, "List() with visible_only filter failed")
 
 		for _, race := range races {
-			if !race.Visible {
-				t.Errorf("Expected only visible races, but got race ID %d with visible=%t", race.Id, race.Visible)
-			}
+			assert.True(t, race.Visible, "Expected only visible races, but got race ID %d with visible=%t", race.Id, race.Visible)
 		}
 	})
 }
@@ -140,44 +123,24 @@ func verifySort(t *testing.T, race1, race2 *racing.Race, sortBy racing.ListRaces
 	switch sortBy {
 	case racing.ListRacesSortBy_ADVERTISED_START_TIME_ASC:
 		time1, err := ptypes.Timestamp(race1.AdvertisedStartTime)
-		if err != nil {
-			t.Fatalf("Failed to get advertised_start_time for race %d: %v", race1.Id, err)
-		}
+		require.NoError(t, err)
 		time2, err := ptypes.Timestamp(race2.AdvertisedStartTime)
-		if err != nil {
-			t.Fatalf("Failed to get advertised_start_time for race %d: %v", race2.Id, err)
-		}
-		if time1.After(time2) {
-			t.Error("Races not sorted by advertised_start_time ASC")
-		}
+		require.NoError(t, err)
+		assert.False(t, time1.After(time2))
 	case racing.ListRacesSortBy_ADVERTISED_START_TIME_DESC:
 		time1, err := ptypes.Timestamp(race1.AdvertisedStartTime)
-		if err != nil {
-			t.Fatalf("Failed to get advertised_start_time for race %d: %v", race1.Id, err)
-		}
+		require.NoError(t, err)
 		time2, err := ptypes.Timestamp(race2.AdvertisedStartTime)
-		if err != nil {
-			t.Fatalf("Failed to get advertised_start_time for race %d: %v", race2.Id, err)
-		}
-		if time1.Before(time2) {
-			t.Error("Races not sorted by advertised_start_time DESC")
-		}
+		require.NoError(t, err)
+		assert.False(t, time1.Before(time2))
 	case racing.ListRacesSortBy_NAME_ASC:
-		if race1.Name > race2.Name {
-			t.Error("Races not sorted by name ASC")
-		}
+		assert.LessOrEqual(t, race1.Name, race2.Name)
 	case racing.ListRacesSortBy_NAME_DESC:
-		if race1.Name < race2.Name {
-			t.Error("Races not sorted by name DESC")
-		}
+		assert.GreaterOrEqual(t, race1.Name, race2.Name)
 	case racing.ListRacesSortBy_NUMBER_ASC:
-		if race1.Number > race2.Number {
-			t.Error("Races not sorted by number ASC")
-		}
+		assert.LessOrEqual(t, race1.Number, race2.Number)
 	case racing.ListRacesSortBy_NUMBER_DESC:
-		if race1.Number < race2.Number {
-			t.Error("Races not sorted by number DESC")
-		}
+		assert.GreaterOrEqual(t, race1.Number, race2.Number)
 	}
 }
 
@@ -219,20 +182,12 @@ func TestRacesRepo_List_SortOptions(t *testing.T) {
 			}
 
 			races, err := testRepo.List(filter)
-			if err != nil {
-				t.Fatalf("List() with sort %v failed: %v", tt.sortBy, err)
-			}
-
-			if len(races) == 0 {
-				t.Fatal("Expected races, got none")
-			}
-
-			if len(races) < 2 {
-				return
-			}
+			require.NoError(t, err, "List() with sort %v failed", tt.sortBy)
+			require.NotEmpty(t, races, "Expected races, got none")
+			require.GreaterOrEqual(t, len(races), 2, "Expected at least 2 races, got %d", len(races))
 
 			for i := 0; i < len(races)-1; i++ {
-				verifySort(races[i], races[i+1])
+				verifySort(t, races[i], races[i+1], tt.sortBy)
 			}
 		})
 	}
@@ -245,17 +200,13 @@ func TestRacesRepo_List_SortWithFilters(t *testing.T) {
 	}
 
 	races, err := testRepo.List(filter)
-	if err != nil {
-		t.Fatalf("List() with visible filter and sort failed: %v", err)
-	}
+	require.NoError(t, err, "List() with visible filter and sort failed")
 
 	for _, race := range races {
-		if !race.Visible {
-			t.Errorf("Race should be visible")
-		}
+		assert.True(t, race.Visible, "Race should be visible")
 	}
 
-	if len(races) >= 2 && races[0].Name > races[1].Name {
-		t.Error("Races not sorted by name ASC")
+	if len(races) >= 2 {
+		assert.LessOrEqual(t, races[0].Name, races[1].Name, "Races not sorted by name ASC")
 	}
 }
