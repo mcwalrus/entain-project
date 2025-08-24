@@ -25,6 +25,17 @@ message ListRacesResponse {
 message ListRacesRequestFilter {
   repeated int64 meeting_ids = 1;
   bool visible_only = 2;
+  ListRacesSortBy sort_by = 3; // default is ADVERTISED_START_TIME_ASC
+}
+
+// Enum for sorting races,
+enum ListRacesSortBy {
+  ADVERTISED_START_TIME_ASC = 0;
+  ADVERTISED_START_TIME_DESC = 1;
+  NAME_ASC = 2;
+  NAME_DESC = 3;
+  NUMBER_ASC = 4;
+  NUMBER_DESC = 5;
 }
 
 /* Resources */

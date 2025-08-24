@@ -36,8 +36,14 @@ Using `grpcurl` to test the endpoints manually. To install:
 brew install grpcurl
 ```
 
+To perform unit tests:
 
-**ListRaces:**
+```bash
+go test -run . git.neds.sh/matty/entain/racing/db
+```
+
+
+### ListRaces
 
 By meeting ids:
 
@@ -49,6 +55,24 @@ By meeting ids, visible only:
 
 ```bash
 $ grpcurl -plaintext -proto proto/racing/racing.proto -d '{"filter": {"meeting_ids": [1, 2, 3], "visible_only": true}}' localhost:9000 racing.Racing/ListRaces
+```
+
+Default sorted order should be by ascending `advertised_start_time`:
+
+```bash
+$ grpcurl -plaintext -proto proto/racing/racing.proto -d '{}' localhost:9000 racing.Racing/ListRaces
+```
+
+With sorting by advertised start time descending:
+
+```bash
+$ grpcurl -plaintext -proto proto/racing/racing.proto -d '{"filter": {"sort_by": "ADVERTISED_START_TIME_DESC"}}' localhost:9000 racing.Racing/ListRaces
+```
+
+With sorting by name ascending:
+
+```bash
+$ grpcurl -plaintext -proto proto/racing/racing.proto -d '{"filter": {"sort_by": "NAME_ASC"}}' localhost:9000 racing.Racing/ListRaces
 ```
 
 **Manual validation**

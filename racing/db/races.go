@@ -69,6 +69,7 @@ func (r *racesRepo) applyFilter(query string, filter *racing.ListRacesRequestFil
 	)
 
 	if filter == nil {
+		query += " " + getSortClause(0)
 		return query, args
 	}
 
@@ -88,6 +89,8 @@ func (r *racesRepo) applyFilter(query string, filter *racing.ListRacesRequestFil
 	if len(clauses) != 0 {
 		query += " WHERE " + strings.Join(clauses, " AND ")
 	}
+
+	query += " " + getSortClause(int32(filter.SortBy))
 
 	return query, args
 }
