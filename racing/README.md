@@ -42,6 +42,19 @@ To perform unit tests:
 go test -run . git.neds.sh/matty/entain/racing/db
 ```
 
+### GetRace
+
+By race id:
+
+```bash
+$ grpcurl -plaintext -emit-defaults -proto proto/racing/racing.proto -d '{"id": 1}' localhost:9000 racing.Racing/GetRace
+```
+
+Non-existent race:
+
+```bash
+$ grpcurl -plaintext -emit-defaults -proto proto/racing/racing.proto -d '{"id": -99999}' localhost:9000 racing.Racing/GetRace
+```
 
 ### ListRaces
 

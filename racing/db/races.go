@@ -20,6 +20,9 @@ type RacesRepo interface {
 
 	// List will return a list of races.
 	List(filter *racing.ListRacesRequestFilter) ([]*racing.Race, error)
+
+	// Get will return a single race by its ID.
+	Get(id int64) (*racing.Race, error)
 }
 
 type racesRepo struct {
@@ -61,6 +64,40 @@ func (r *racesRepo) List(filter *racing.ListRacesRequestFilter) ([]*racing.Race,
 	}
 
 	return r.scanRaces(rows)
+}
+
+// Get retrieves a single race by its ID from the database.
+// If the race is found, it returns the race, otherwise an error ErrRaceNotFound is returned.
+// Other errors are returned if there is a problem querying the database or converting the timestamp.
+func (r *racesRepo) Get(id int64) (*racing.Race, error) {
+	query := getRaceQueries()[racesGet]
+
+	row := r.db.QueryRow(query, id)
+
+	var race racing.Race
+	var advertisedStart time.Time
+
+	if err := row.Scan(&race.Id, &race.MeetingId, &race.Name, &race.Number, &race.Visible, &advertisedStart); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, ErrRaceNotFound
+		}
+		return nil, err
+	}
+
+	ts, err := ptypes.TimestampProto(advertisedStart)
+	if err != nil {
+		return nil, err
+	}
+
+	race.AdvertisedStartTime = ts
+	now := clock.Now()
+	if advertisedStart.Before(now) {
+		race.Status = racing.RaceStatus_OPEN
+	} else {
+		race.Status = racing.RaceStatus_CLOSED
+	}
+
+	return &race, nil
 }
 
 func (r *racesRepo) applyFilter(query string, filter *racing.ListRacesRequestFilter) (string, []interface{}) {

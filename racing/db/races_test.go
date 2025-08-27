@@ -237,3 +237,23 @@ func TestScanRaces_RaceStatus(t *testing.T) {
 		require.Equal(t, racing.RaceStatus_CLOSED, races[0].Status)
 	})
 }
+
+func TestRacesRepo_Get(t *testing.T) {
+	allRaces, err := testRepo.List(nil)
+	require.NoError(t, err)
+	require.NotEmpty(t, allRaces)
+
+	t.Run("get existing race by ID", func(t *testing.T) {
+		expectedRace := allRaces[0]
+		race, err := testRepo.Get(expectedRace.Id)
+		require.NoError(t, err)
+		require.NotNil(t, race)
+	})
+
+	t.Run("get non-existent race by ID", func(t *testing.T) {
+		nonExistentID := int64(99999)
+		race, err := testRepo.Get(nonExistentID)
+		require.ErrorIs(t, err, ErrRaceNotFound)
+		require.Nil(t, race)
+	})
+}
